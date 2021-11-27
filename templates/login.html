@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <link rel="shortcut icon" href="/static/fish.png">
+        <title>Login to AquaControl</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <link rel='stylesheet' href="/static/fancyness.css"/>
+    </head>
+    <body>
+        <div class="credsHolder" id="credsHolder">
+            <h1 class="rainbow" id="welcome">Hello.</h1>
+            <form id="loginForm">
+                <input type="username" name="username" placeholder="Username" id="userIn" required spellcheck="false" class="redhighlight"><br>
+                <input type="password" name="password" placeholder="Password" id="passwdIn" required class="redhighlight"><br>
+                <button type="submit" id="loginBtn">Log in</button>
+                <div id="loader" style="display: none;"></div>
+            </form>
+        </div>
+    </body>
+    <script type="text/javascript">
+        var superb = "{{ superbland }}";
+        var nest = document.getElementById("credsHolder");
+        document.addEventListener("DOMContentLoaded", (event) => {
+            if (superb == "y")
+            {
+                nest.classList.add("superb");
+            }
+            nest.style.display = "inline-block";
+        });
+        console.log(superb);
+        var listener = function()
+        {
+            nest.classList.remove("incorrect");
+            nest.classList.remove("superb");
+        };
+        var header = document.getElementById("welcome");
+        var form = document.getElementById("loginForm");
+        nest.addEventListener('animationend', listener);
+        nest.addEventListener('webkitAnimationEnd', listener);
+        var user = document.getElementById("userIn");
+        var pass = document.getElementById("passwdIn");
+        var spinner = document.getElementById("loader");
+        var loginBtn = document.getElementById("loginBtn");
+
+        var olduser = "";
+        var oldpass = "";
+        loginBtn.addEventListener('click', function(e)
+        {
+            e.preventDefault();
+            if (nest.classList.contains("incorrect")) return;
+            if (user.value == "")
+            {
+                user.style = "border-style: solid; border-color: #E74C3C;";
+                //nest.classList.add("incorrect");
+            }
+            if(pass.value == "")
+            {
+                pass.style = "border-style: solid; border-color: #E74C3C;";
+            }
+            if (user.value == olduser && pass.value == oldpass)
+            {
+                user.style = "border-style: solid; border-color: #E74C3C;";
+                pass.style = "border-style: solid; border-color: #E74C3C;";
+                //nest.classList.add("incorrect");
+                return;
+            }
+            if(user.value != "" && user.value != olduser) user.removeAttribute('style');
+            if(pass.value != "" && pass.value != olduser) pass.removeAttribute('style');
+            if(user.value == "" || pass.value == "") return;
+            user.removeAttribute('style');
+            pass.removeAttribute('style');
+            loginBtn.style.display = "none";
+            spinner.style.display = "inline-block";
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', '/login', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    var res = ajax.responseText
+                    if (res == "incorrect!")
+                    {
+                        olduser = user.value;
+                        oldpass = pass.value;
+                        spinner.style.display = "none";
+                        loginBtn.style.display = "inline-block";
+                        nest.classList.add("incorrect");
+                    }
+                    else window.location.replace('/index')
+                }
+            };
+            ajax.send(JSON.stringify({username:String(user.value),
+            password:String(pass.value)}));
+        });
+    </script>
+</html>

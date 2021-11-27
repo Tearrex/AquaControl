@@ -1,0 +1,570 @@
+<html>
+    <head>
+        <link rel="shortcut icon" href="/static/fish.png">
+        <link rel="shortcut icon" href="/static/fish_x16.png" sizes="16x16">
+        <link rel="shortcut icon" href="/static/fish_x32.png" sizes="32x32">
+        <link rel="shortcut icon" href="/static/fish_x96.png" sizes="96x96">
+        <link rel="shortcut icon" href="/static/fish_x192.png" sizes="192x192">
+        <title>AquaControl</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <style>
+            hr {clear: both;margin: 0; padding:0; border: 0;}
+            a:link { text-decoration: none; }
+            a:visited { text-decoration: none; }
+            a:hover { text-decoration: none; }
+            a:active { text-decoration: none; }
+            .aq_section {
+                display: table-cell;
+                text-align: center;
+                color: #fff;
+                cursor: pointer;
+                padding: 20px;
+                border: none;
+                outline: none;
+                font-size: 2rem;
+            }
+            /*.aq_section::after{
+                content: '💡';
+                position: unset;
+                float: right;
+            }*/
+            .aq_section p {
+                display: inline;
+                margin: 0;
+                float: right;
+            }
+            .content {
+                display: inline-block;
+                max-height: 0;
+                transition: max-height 1s ease-in-out;
+                overflow: hidden;
+                background-color: rgb(40,40,40);
+            }
+            /* all old down here*/
+            #brightness {font-size: 2rem;}
+            #colorNest {
+                display: inline-block;
+                /*max-height: 0;*/
+                overflow-y: hidden;
+                transition: max-height 1s ease;
+            }
+            .timeField {
+                display: inline-block;
+                margin: 0 0 20px 0;
+            }
+            .timeField label {
+                font-size: 1.7rem; vertical-align: middle;
+            }
+            .timeField input {
+                outline: none;
+                padding: 10px;
+                vertical-align: middle;
+                border-style: none;
+            }
+            @media screen and (max-width:400px)
+            {
+                .timefield {margin: 5px 0 15px 0;}
+                #brightness {font-size: 1.5rem;}
+            }
+            .unavailable {
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+                background-size: contain;
+                text-align: center;
+                position: absolute;
+            }
+            .centered {
+                width: 100%;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                text-align: center;
+            }
+            .livefeed {
+                overflow: hidden;
+                display: inline-block;
+                position: relative;
+                text-align: center;
+            }
+            .main {
+                width: 70%;
+                height: 40%;
+            }
+            #camera-bg, #camera-bg2 {
+                display: block;
+                width: 100%;
+                height: auto;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size:cover;
+            }
+        </style>
+    </head>
+    <body style='text-align: center; overflow-x: hidden; display: table; width: 100%;'>
+        <div id="faded" style="text-align: center;">
+            <h1 id="aqTitle" style="color:#DFFF00; margin: 20px 0;">AquaControl</h1>
+            <div>
+                <button type="button" class="aq_section section" style="background-color: #F5B041;">Lights</button>
+                <hr><div class="content section" id="lights_con">
+                    <!--<p style="margin-top: 0; margin-bottom: 20px; color: #cbcbcb;" class="niceText">Current time: {{ time }}</p>-->
+                    <div class="ctoggle" style="display: inline-block; padding-top: 15px;">
+                        <p style="display: inline-block; vertical-align: middle; transition: opacity 0.5s ease-in-out;" class="niceText" id="lightsTitle">Enable</p>
+                        <label class="switch" style="vertical-align: middle; display: inline-block;">
+                            <input type="checkbox" name="ledtoggle" id="ledtoggle" {{ led }}>
+                            <span class="slider round"></span>
+                        </label>
+                            <!--<div class="loader" id="ledload" style="display: inline-block; vertical-align: middle;"></div>-->
+                    </div>
+                    <br><div class="timeField">
+                        <label for="onTime" style="color: #82E0AA;">On</label>
+                        <input type="time" id="onTime" value="{{ ontime }}" style="margin-right: 5px;"></input>
+                        <label for="offTime" style="color: #F1948A; margin-left: 5px;">Off</label>
+                        <input type="time" id="offTime" value="{{ offtime }}"></input>
+                    </div>
+                    <p id="brightness" class="niceText" style="margin: 0;">Brightness {{ brightness }}%</p>
+                    <div>
+                        <form method="POST" id="brightnessform" action="/index" style="margin-bottom: 5px;">
+                            <input type="range" min="1" max="100" value={{ brightness }} class="ranger brightness" id="brightness" style="display: inline-block; border-radius: 0;background-image: linear-gradient(to right, #fff100 {{ brightness }}%, white 1%)">
+                            <button type="submit" class="applyBtn">Set</button>
+                        </form>
+                    </div>
+                    <p class="{{ rain }}" id="colorDisplay" style="{{ color }} display: inline;">Choose Color</p>
+                    <br><div class="colorNest" id="colorNest">
+                        <button type="submit" style="background-color: #e72510;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #D35400;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #F39C12;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #F4D03F;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #ccff00;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #18cf03;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #2ECC71;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #16A085;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #3498DB;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #2471A3;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #9B59B6;" class="colorBtn"></button>
+                        <button type="submit" style="background-color: #6C3483;" class="colorBtn"></button>
+                        <button type="submit" class="rainbowBtn colorBtn"></button>
+                        <input type="color" id="colorpick" name="colorpick" style="width: 100px; height: 60px; vertical-align: middle; margin: 0 5px;"></input>
+                        <script>
+                            function HEX2RGB (hex) {
+                                "use strict";
+                                if (hex.charAt(0) === '#') {
+                                    hex = hex.substr(1);
+                                }
+                                if ((hex.length < 2) || (hex.length > 6)) {
+                                    return false;
+                                }
+                                var values = hex.split(''),
+                                    r,
+                                    g,
+                                    b;
+                                if (hex.length === 2) {
+                                    r = parseInt(values[0].toString() + values[1].toString(), 16);
+                                    g = r;
+                                    b = r;
+                                } else if (hex.length === 3) {
+                                    r = parseInt(values[0].toString() + values[0].toString(), 16);
+                                    g = parseInt(values[1].toString() + values[1].toString(), 16);
+                                    b = parseInt(values[2].toString() + values[2].toString(), 16);
+                                } else if (hex.length === 6) {
+                                    r = parseInt(values[0].toString() + values[1].toString(), 16);
+                                    g = parseInt(values[2].toString() + values[3].toString(), 16);
+                                    b = parseInt(values[4].toString() + values[5].toString(), 16);
+                                } else {
+                                    return false;
+                                }
+                                return [r, g, b];
+                            }
+                            const picker = document.getElementById("colorpick");
+                            picker.addEventListener("input", function(){
+                                var col = HEX2RGB(picker.value)
+                                console.log(col);
+                                var ajax = new XMLHttpRequest();
+                                ajax.open('POST', '/changecol', true);
+                                ajax.setRequestHeader('Content-type', 'application/json');
+                                ajax.onreadystatechange = function() {
+                                    if(this.readyState == 4 && this.status == 200)
+                                    {
+                                        if (ajax.responseText == "No access") return;
+                                        if(colorTitle.classList.contains("rainbow")) colorTitle.classList.remove("rainbow");
+                                        //colorTitle.removeAttribute("style");
+                                        colorTitle.style.color = "rgb("+col[0]+","+col[1]+","+col[2]+")";
+                                        console.log('sent RGB: ' + col);
+                                    }
+                                };
+                                ajax.send(JSON.stringify({color:String("("+col[0]+","+col[1]+","+col[2]+")")}));
+                                });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <button type="button" class="aq_section section" style="background-color: #40E0D0;">Camera</button>
+                <hr><div class="content section">
+                    <div class="livefeed" id="livefeed" style="width: 100%;">
+                        <div class="unavailable" id="dimmer" style="background: none; min-height: 250px; transition: opacity 1.5s ease-in-out">
+                            <div class="unavailable" style="opacity: 50%;"></div>
+                            <div class="centered">
+                                <div id="loader" style="display: inline-block; vertical-align: middle; border-top-color: #40E0D0;"></div>
+                                <p style="display: none; margin:0; vertical-align: middle; font-size: 3rem;" id="offline">▶️</p>
+                            </div>
+                        </div>
+                        <div id="darkframe" class="camera-bg" style="padding-top: 75%; background-color: #000; display: {{ framedisp }}; width: 100%;"></div>
+                    </div>
+                    <script>
+                        //var shouldDismiss = false;
+                        //var bg = document.getElementById("camera-bg");
+                        var dimmer = document.getElementById("dimmer");
+                        var livefeed = document.getElementById("livefeed");
+                        var spinner = document.getElementById("loader");
+                        var offline = document.getElementById("offline");
+                        var dimmer = document.getElementById("dimmer");
+                        var bg = document.getElementById("camera-bg");
+                        var black = document.getElementById("darkframe");
+
+                        function load_stream(stream)
+                        {
+                            if (!stream)
+                            {
+                                spinner.style.display = "none";
+                                offline.style.display = "inline-block";
+                                dimmer.id = "fadein";
+                            }
+                            else
+                            {
+                                offline.style.display = "none";
+                                spinner.style.display = "inline-block";
+                                var bg2 = null;
+                                loading = true;
+                                var img = new Image();
+                                img.onload = function(){
+                                    black.style.display = "none";
+                                    if (bg != null)
+                                    {
+                                        bg.remove();
+                                    }
+                                    dimmer.id = "faded";
+                                    bg = bg2;
+                                    loading = false;
+                                };
+                                img.id = "camera-bg";
+                                img.src = "/video_feed";
+                                bg2 = livefeed.appendChild(img);
+                            }
+                        }
+                        spinner.style.display = "none";
+                        offline.style.display = "inline-block";
+                        dimmer.id = "fadein";
+                        var streaming = false;
+                        var loading = false;
+                        livefeed.addEventListener('click', function(e){
+                            if(!loading) streaming = !streaming;
+                            var ajax = new XMLHttpRequest();
+                            ajax.open('POST', '/stream', true);
+                            ajax.setRequestHeader('Content-type', 'application/json');
+                            ajax.onreadystatechange = function() {
+                                if(this.readyState == 4 && this.status == 200)
+                                {
+                                    if (ajax.responseText == "No access")
+                                    {
+                                        alert("You need to be logged in for that.")
+                                        return;
+                                    };
+                                    console.log(ajax.responseText);
+                                    load_stream(streaming);
+                                }
+                            };
+                            ajax.send(JSON.stringify({enabled:String(streaming)}));
+                        });
+                    </script>
+                </div>
+            </div>
+            <!--Section format
+            <div style="margin-top: 10px;">
+                <button type="button" class="aq_section section" style="background-color: #40E0D0;">Camera</button>
+                <hr><div class="content section">
+                </div>
+            </div>
+            -->
+            <div style="margin-top: 10px;">
+                <button type="button" class="aq_section section" style="background-color: #6495ED;">Temperatures</button>
+                <hr><div class="content section" id="temps_sec">
+                    <div class="temps" style="display: inline-block; margin:0;">
+                        <p id="watertemp" class="niceText" style="text-align: center; margin: 15px 0; display: inline-block;">💧 Water 0 °F</p>
+                        <hr><p id="cputemp" class="niceText" style="text-align: center; margin: 15px 0; display: inline-block;">🌡️ CPU 0 °C</p>
+                        <hr><a href="/graphs" id="logout" style="background-color: #DE3163; font-size: 2rem; margin-bottom: 15px;">Graphs</a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <script>
+                const nester = document.querySelector("#colorDisplay");
+                const nest = document.getElementById("colorNest");
+
+                var sections = document.getElementsByClassName("aq_section");
+                for(var i = 0; i < sections.length; i++)
+                {
+                    (function(index){
+                        //var fixedHeight = null;
+                        sections[i].addEventListener("click", function(){
+                        console.log("the i is " + index);
+                        var content = this.nextElementSibling.nextElementSibling;
+                        //if(!fixedHeight) fixedHeight = content.scrollHeight;
+                        if(content.style.maxHeight)
+                        {
+                            content.style.maxHeight = null;
+                            if(index != 1) return;
+                            if(!loading) streaming = !streaming;
+                            var ajax = new XMLHttpRequest();
+                            ajax.open('POST', '/stream', true);
+                            ajax.setRequestHeader('Content-type', 'application/json');
+                            ajax.onreadystatechange = function() {
+                                if(this.readyState == 4 && this.status == 200) load_stream(false); return;
+                            };
+                            ajax.send(JSON.stringify({enabled:String(false)}));
+                        }
+                        else content.style.maxHeight = content.scrollHeight + "px";
+                        if(index == 0)
+                        {
+                            content.style.maxHeight = parseInt(theCon.style.maxHeight.replace("px","")) - nest.scrollHeight;
+                            nest.style.maxHeight = 0;
+                        } 
+                        });
+                    })(i)
+                }
+                var nestHeight = nest.offsetHeight;
+                var theCon = document.getElementById("lights_con");
+                nester.addEventListener('click', function(){
+                    console.log(nest.style.maxHeight)
+                    if(nest.style.maxHeight != "0px")
+                    {
+                        nest.style.maxHeight = 0;
+                        console.log("yesttt");
+                        theCon.style.maxHeight = parseInt(theCon.style.maxHeight.replace("px","")) - nest.scrollHeight;
+                    }
+                    else
+                    {
+                        console.log("yest");
+                        nest.style.maxHeight = nest.scrollHeight + "px";
+                        theCon.style.maxHeight = parseInt(theCon.style.maxHeight.replace("px","")) + nest.scrollHeight;
+                    }
+                });
+            </script>
+            <!--<div class="temps">
+                <p id="watertemp" class="niceText" style="text-align: center; margin: 25px 0 25px 0;">💧 Water 0 °F</p>
+                <p id="cputemp" class="niceText" style="text-align: center; margin: 25px 0 25px 0;">🌡️ CPU 0 °C</p>
+            </div>-->
+            <div style="margin-top: 10px;">
+                <a href="/logout" id="logout">Log out</a>
+                <a href="/changepass" id="logout" style="background-color: #F4D03F;">Change Password</a>
+            </div>
+        </div>
+        </body>
+    <script type="text/javascript">
+        const body = document.getElementById("faded");
+        const ledtitle = document.getElementById("lightsTitle");
+        function componentToHex(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+        var pages = document.getElementsByTagName('a');
+        for(var i = 0; i < pages.length; i++)
+        {
+            if(pages[i].pathname === window.location.pathname) continue;
+            pages[i].addEventListener('click', function(e)
+            {
+                var page = e.currentTarget.href;
+                var listener = function()
+                {
+                    window.location = page;
+                    body.removeEventListener('transitionend', listener);
+                    body.removeEventListener('webkitTransitionEnd', listener);
+                };
+                body.addEventListener('transitionend', listener);
+                body.addEventListener('webkitTransitionEnd', listener);
+                e.preventDefault();
+                body.id = "faded";
+            });
+        };
+        document.addEventListener("DOMContentLoaded", function(){
+                console.log(window.innerWidth);
+                var theHex = rgbToHex({{ col_r }}, {{ col_g }}, {{ col_b }} );
+                picker.value = theHex;
+                if ("{{ rain }}" != "niceText rainbow")
+                {
+                    colorTitle.style.color = theHex;
+                }
+                if ("{{ led }}" != "checked") ledtitle.style.opacity = 0.4;
+                body.id = "fadein";
+                //document.getElementById("aqTitle").textContent = window.innerWidth;
+                });
+        const onTime = document.getElementById("onTime");
+        const offTime = document.getElementById("offTime");
+        var listener = function()
+        {
+            onTime.classList.remove("slam");
+        };
+        onTime.addEventListener('animationend', listener);
+        onTime.addEventListener('webkitAnimationEnd', listener);
+        var listener = function()
+        {
+            offTime.classList.remove("slam");
+        };
+        offTime.addEventListener('animationend', listener);
+        offTime.addEventListener('webkitAnimationEnd', listener);
+        function updateTimer(stat)
+        {
+            if (stat == "on") var time = onTime.value;
+            else var time = offTime.value;
+            console.log(time)
+
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', '/settimer', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    console.log(ajax.responseText);
+                    if (ajax.responseText == "No access") return;
+                    else if (ajax.responseText == "Duplicate times")
+                    {
+                        alert("The ON and OFF times cannot be the same!");
+                        return;
+                    }
+                    console.log(ajax.responseText);
+                    if (stat == "on") onTime.classList.add("slam");
+                    else offTime.classList.add("slam");
+                }
+            };
+            ajax.send(JSON.stringify({status:stat, time:String(time)}));
+            if (stat == "on") onTimer = null;
+            else offTimer = null;
+        }
+        var onTimer = null;
+        onTime.addEventListener("input", function(){
+            if(!onTimer)
+            {
+                console.log("Starting timer!")
+                onTimer = setTimeout(updateTimer, 7000, 'on');
+            }
+        });
+        var offTimer = null;
+        offTime.addEventListener("input", function(){
+            if(!offTimer)
+            {
+                console.log("Starting timer!")
+                offTimer = setTimeout(updateTimer, 7000, 'off');
+            }
+        });
+
+        const brightTitle = document.querySelector("#brightness");
+        const brightness = document.querySelector(".brightness");
+        brightness.addEventListener("input", function(){
+            brightness.style.backgroundImage = 'linear-gradient(to right, #fff100 ' + 
+            parseInt(brightness.value * 100 / brightness.max)+ '%, white 1%)';
+            var newText = "Brightness " + brightness.value + "%";
+            brightTitle.textContent = newText;
+        });
+        var colors = document.getElementsByClassName("colorBtn");
+        //console.log(colors.length)
+        const colorTitle = document.getElementById("colorDisplay");
+        for(var i = 0; i < colors.length; i++)
+        {
+            colors[i].addEventListener("click", function(e){
+                if(this.classList.contains("rainbowBtn")) var col = "rainbow";
+                else var col = this.style.backgroundColor;
+                var ajax = new XMLHttpRequest();
+                ajax.open('POST', '/changecol', true);
+                ajax.setRequestHeader('Content-type', 'application/json');
+                ajax.onreadystatechange = function() {
+                    if(this.readyState == 4 && this.status == 200)
+                    {
+                        if (ajax.responseText == "No access") return;
+                        if (col == "rainbow")
+                        {
+                            if(!colorTitle.classList.contains("rainbow")) colorTitle.classList.add("rainbow");
+                            colorTitle.removeAttribute("style");
+                        }
+                        else colorTitle.style.color = col;
+                        console.log('sent RGB: ' + col);
+                        //console.log(ajax.responseText);
+                    }
+                };
+                ajax.send(JSON.stringify({color:String(col)}));
+            });
+        }
+        var curBrightness = {{ brightness }}
+        document.getElementById("brightnessform").addEventListener("submit", function(e){
+            e.preventDefault();
+            if (brightTitle.classList.contains("slam") || curBrightness == brightness.value) return;
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', '/index', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    if (ajax.responseText == "No access") return;
+
+                    brightTitle.classList.add("slam");
+                    var listener = function()
+                    {
+                        brightTitle.classList.remove("slam");
+                    };
+                    brightTitle.addEventListener('animationend', listener);
+                    brightTitle.addEventListener('webkitAnimationEnd', listener);
+
+                    //alert("Brightness set to " + brightness.value + "%")
+                    curBrightness = brightness.value;
+                    console.log('sent Brightness: ' + brightness.value); 
+                    //console.log(ajax.responseText);
+                }
+            };
+            ajax.send(JSON.stringify({brightness:brightness.value}));
+        });
+        const toggle = document.getElementById("ledtoggle");
+        document.getElementById("ledtoggle").addEventListener("click", function(e){
+            var toggled = toggle.checked;
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', '/index', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    if (ajax.responseText == "No access") return;
+                    if (toggled) ledtitle.style.opacity = 1;
+                    else ledtitle.style.opacity = 0.4;
+                    //alert("LED set to " + toggled)
+                    //console.log('sent Brightness: ' + brightness.value); 
+                    //console.log(ajax.responseText);
+                }
+            };
+            ajax.send(JSON.stringify({ledtoggle:String(toggled)}));
+        });
+        var temps = document.getElementById("temps_sec");
+        var wtemp = document.querySelector("#watertemp");
+        var ctemp = document.querySelector("#cputemp");
+        function testFunc(){
+            if(!document.hasFocus() || !temps.style.maxHeight) return;
+            var ajax = new XMLHttpRequest();
+            ajax.open('GET', '/temps', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function()
+            {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    var data = JSON.parse(this.response);
+                    wtemp.textContent = "💧 Water " + data['wtemp'] + " °F"
+                    ctemp.textContent = "🌡️ CPU " + data['ctemp'] + " °C"
+                    console.log(data);
+                }
+            };
+            ajax.send();
+            }
+        window.setInterval(testFunc, 5000)
+    </script>
+</html>

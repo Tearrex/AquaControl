@@ -1,0 +1,113 @@
+body {
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+.redhighlight {
+    border-style: solid;
+    border-color: #E74C3C;
+    transition: border 0.4s linear;
+}
+.credsHolder {
+    background-color: #ECF0F1;
+    display: inline-block;
+    padding: 20px;
+    margin-bottom: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, 50%);
+}
+@media screen and (max-width: 800px)
+{
+    .credsHolder{width: 80%;}
+    .credsHolder input, button{font-size: 7vw;}
+}
+@media screen and (min-width: 800px)
+{
+    .credsHolder{width: 60%;}
+    .credsHolder input, button{font-size: 3vw;}
+}
+@media screen and (min-width: 1400px)
+{
+    .credsHolder{width: 40%;}
+    .credsHolder input, button{font-size: 2vw;}
+}
+.credsHolder {
+    /*width: 100%;*/
+    transition: opacity 1s ease-in-out;
+}
+.credsHolder form {
+    display: inline;
+}
+.credsHolder input, button {
+    outline: none;
+    border: none;
+    border-radius: 0px;
+    text-align: center;
+    margin: 10px 0;
+    text-decoration: none;
+    padding: 15px 15px;
+    width: 100%;
+}
+.credsHolder input:first-child {
+    margin-top: 20px;
+}
+.credsHolder button {
+    background-color: #F4D03F;
+    color: #fff;
+    margin-bottom: 0;
+    transition: background-color 0.3s linear;
+}
+.credsHolder button:hover {
+    cursor: pointer;
+    background-color: #F7DC6F;
+}
+@keyframes incorrect {
+    0% {
+        transform: translate(-50%, -50%);
+    }
+    20% {
+        transform: translate(-55%, -50%);
+    }
+    40% {
+        transform: translate(-45%, -50%);
+    }
+    60% {
+        transform: translate(-55%, -50%);
+    }
+    80% {
+        transform: translate(-45%, -50%);
+    }
+    100% {
+        transform: translate(-50%, -50%);
+    }
+}
+.incorrect {
+    animation: incorrect 0.5s linear 0s;
+}
+@keyframes superb {
+    0% {
+        transform: translate(-50%, -300%);
+    }
+    100% {
+        transform: translate(-50%, -50%);
+    }
+}
+.superb {
+    animation: superb 0.5s ease-out 0s;
+}
+@keyframes moveout {
+    0% {
+        transform: translate(-50%, -50%);
+    }
+    100% {
+        transform: translate(-50%, 300%);
+    }
+}
+.moveout {
+    animation: moveout 0.5s ease-in 0s;
+}

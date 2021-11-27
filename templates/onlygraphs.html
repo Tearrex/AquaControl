@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+        <Style>
+            canvas {
+                max-width: 800px;
+                max-height: 400px;
+            }
+        </Style>
+    </head>
+    <body style='text-align: center;'>
+        <canvas id="waterChart" height="300" style="display: block;"></canvas>
+        <canvas id="cpuChart" height="300" style="display: block;"></canvas>
+        <script>
+            // water temp chart
+            var ctx = document.getElementById('waterChart').getContext('2d');
+            var waterChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ wdates | safe }},
+                    datasets: [
+                        {
+                            label: 'Fahrenheit',
+                            data: {{ wtemps | safe }},
+                            backgroundColor: "rgba(52, 152, 219, 0.5)",
+                            fill: true,
+                            borderColor: "rgb(229, 231, 233)",
+                            lineTension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            },
+                            ticks: {
+                                suggestedMin:60,
+                                suggestedMax:90
+                            }
+                        }]
+                    }
+                }
+            });
+            var ctx2 = document.getElementById('cpuChart').getContext('2d');
+            var cpuChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: {{ cdates | safe }},
+                    datasets: [
+                        {
+                            label: 'Celcius',
+                            data: {{ ctemps | safe }},
+                            backgroundColor: "rgba(231, 76, 60, 0.5)",
+                            fill: true,
+                            borderColor: "rgb(229, 231, 233)",
+                            lineTension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            },
+                            ticks: {
+                                suggestedMin:20,
+                                suggestedMax:60
+                            }
+                        }]
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

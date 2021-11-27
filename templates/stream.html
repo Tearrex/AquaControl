@@ -1,0 +1,277 @@
+<html>
+    <head>
+        <link rel="shortcut icon" href="/static/fish.png">
+        <title>Floaty Fish</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <Style>
+            .comfyBtn {
+                border: none;
+                color: white;
+                text-align: center;
+                padding: 0 8px 0 8px;
+                font-size: 30px;
+                outline: none;
+                margin: 0px 0 15px 0;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+                transition: background-color 0.3s linear;
+            }
+            .blues {
+                background-color: #3498DB;
+            }
+            .blues:hover {
+                background-color: #2874A6;
+            }
+            .reds {
+                background-color: #E74C3C;
+            }
+            .reds:hover {
+                background-color: #B03A2E;
+            }
+            .main {
+                width: 70%;
+                height: 40%;
+            }
+            #camera-bg, #camera-bg2 {
+                display: block;
+                width: 100%;
+                height: auto;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size:cover;
+            }
+            @media screen and (min-width:1250px){
+                .livefeed {
+                    width: 50%;
+                }
+            }
+            @media screen and (min-width:900px){
+                .livefeed {
+                    width: 60%;
+                }
+                .centered {
+                    font-size: 5vw;
+                }
+            }
+            @media screen and (max-width:800px){
+                .livefeed {
+                    width: 90%;
+                }
+                .centered {
+                    font-size: 8vw;
+                }
+            }
+            .redCircle {
+                display: inline-block;
+                vertical-align: middle;
+                background-color: #E74C3C;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                animation: live 2.5s ease-in-out 0s infinite;
+            }
+            @keyframes live {
+                0% {
+                    opacity: 100%;
+                }
+                50% {
+                    opacity: 0%;
+                }
+                100% {
+                    opacity: 100%;
+                }
+            }
+            .live { 
+                margin-bottom: 15px;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .unavailable {
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #000;
+                background-size: contain;
+                text-align: center;
+                /*opacity: 50%;*/
+                position: absolute;
+                /*top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);*/
+            }
+            .centered {
+                width: 100%;
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                text-align: center;
+            }
+            .livefeed {
+                overflow: hidden;
+                display: inline-block;
+                position: relative;
+                text-align: center;
+                margin-bottom: 60px;
+            }
+        </Style>
+    </head>
+    <body style='text-align: center;'>
+        <div id="navBar">
+            <ul>
+                <li><a href="/graphs">Graphs</a></li>
+                <li><a href="/index">LEDs</a></li>
+                <li><a href="#" style="background-color: #111;">Stream</a></li>
+            </ul>
+        </div>
+        <div id="faded">
+            <!--<h1 class="rainbow">Aquarium Control</h1>-->
+            <div class="live" style="margin-top: 25px;">
+                <div class="redCircle"></div>
+                <p style="margin: 0; color: #cbcbcb; display: inline-block; vertical-align: middle;" class="niceText">Live</p>
+            </div><br>
+            <label class="switch" style="display: block; margin-bottom: 25px;">
+                <input type="checkbox" name="ledtoggle" id="ledtoggle" {{ senabled }}>
+                <span class="slider rslider round"></span>
+            </label>
+            <div class="livefeed" id="livefeed">
+                <script>
+                    //var shouldDismiss = false;
+                    //var bg = document.getElementById("camera-bg");
+                    var dimmer = document.getElementById("dimmer");
+                    function removeDimmer()
+                    {
+                        //if (!shouldDismiss) return;
+                        document.getElementById("camera-bg").style.paddingTop = "0";
+                        dimmer.id = "faded";
+                        console.log(shouldDismiss);
+                    }
+                    if ("{{ senabled }}" == "checked")
+                    {
+                        var img = new Image();
+                        img.onload = function(){
+                            dimmer.id = "faded";
+                        };
+                        //img.style = "padding-top: 75%;"
+                        img.id = "camera-bg";
+                        img.src = "{{ imgstream }}";
+                        document.getElementById("livefeed").appendChild(img);
+                    }
+                </script>
+                <!--<img  class="camera-bg" id="camera-bg" style="background-attachment: fixed;" src="" onload="removeDimmer()">-->
+                <div id="darkframe" class="camera-bg" style="padding-top: 75%; background-color: #000; display: {{ framedisp }};"></div>
+                <div class="unavailable" id="dimmer" style="background: none; min-height: 250px; transition: opacity 1.5s ease-in-out">
+                    <div class="unavailable" style="opacity: 50%;"></div>
+                    <div class="centered">
+                        <div id="loader" style="display: inline-block; vertical-align: middle; border-top-color: #E74C3C;"></div>
+                        <p style="display: none; margin:0; vertical-align: middle;" id="offline">Stream is offline...</p>
+                    </div>
+                </div>
+            </div>
+            <!--<img  class="camera-bg" style="background-attachment: fixed;" id="bg" src="{{ url_for('video_feed') }}">-->
+        </div>
+        <script>
+            var spinner = document.getElementById("loader");
+            var offline = document.getElementById("offline");
+            var dimmer = document.getElementById("dimmer");
+            var bg = document.getElementById("camera-bg");
+            var black = document.getElementById("darkframe");
+            /*var img = new Image();
+            img.src = "{{ imgstream }}"
+            img.onload = function()
+            {
+                if (!shouldDismiss) return;
+                    bg.style.paddingTop = "0";
+                    dimmer.id = "faded";
+                    console.log(shouldDismiss);
+            };
+            bg.src = img*/
+            if ("{{ senabled }}" == "checked")
+            {
+                shouldDismiss = true;
+                //removeDimmer();
+            }
+            else
+            {
+                spinner.style.display = "none";
+                offline.style.display = "inline-block";
+                dimmer.id = "fadein";
+            }
+            var toggle = document.getElementById("ledtoggle");
+            toggle.addEventListener('click', function(e){
+                var checked = toggle.checked;
+                var ajax = new XMLHttpRequest();
+                ajax.open('POST', '/stream', true);
+                ajax.setRequestHeader('Content-type', 'application/json');
+                ajax.onreadystatechange = function() {
+                    if(this.readyState == 4 && this.status == 200)
+                    {
+                        if (ajax.responseText == "No access") return;
+                        console.log(ajax.responseText);
+                        if (!checked)
+                        {
+                            spinner.style.display = "none";
+                            offline.style.display = "inline-block";
+                            dimmer.id = "fadein";
+                        }
+                        else
+                        {
+                            offline.style.display = "none";
+                            spinner.style.display = "inline-block";
+                            var bg2 = null;
+                            var img = new Image();
+                            img.onload = function(){
+                                black.style.display = "none";
+                                if (bg != null)
+                                {
+                                    bg.remove();
+                                }
+                                dimmer.id = "faded";
+                                bg = bg2;
+                            };
+                            img.id = "camera-bg";
+                            img.src = "/video_feed";
+                            //bg.remove();
+                            bg2 = document.getElementById("livefeed").appendChild(img);
+                            //img.src = "static/resources/download.jpg";
+                            /*bg.onload = function()
+                            {
+                                dimmer.id = "faded";
+                            };*/
+                        }
+                    }
+                };
+                ajax.send(JSON.stringify({enabled:String(checked)}));
+            });
+            const body = document.getElementById("faded");
+            document.addEventListener("DOMContentLoaded", function()
+            {
+                body.id = "fadein";
+            });
+            var pages = document.getElementsByTagName('a');
+            for(var i = 0; i < pages.length; i++)
+            {
+                if(pages[i].pathname === window.location.pathname) continue;
+                pages[i].addEventListener('click', function(e)
+                {
+                    var page = e.currentTarget.href;
+                    var listener = function()
+                    {
+                        window.location = page;
+                        body.removeEventListener('transitionend', listener);
+                        body.removeEventListener('webkitTransitionEnd', listener);
+                    };
+                    body.addEventListener('transitionend', listener);
+                    body.addEventListener('webkitTransitionEnd', listener);
+                    e.preventDefault();
+                    body.id = "faded";
+                });
+            };
+        </script>
+    </body>
+</html>

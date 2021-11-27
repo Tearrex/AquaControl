@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <title>Change Password</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <link rel='stylesheet' href="/static/fancyness.css"/>
+        <style>
+            @media screen and (max-width:1000px)
+            {
+                h1 {
+                    font-size: 6.5vw;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="credsHolder" id="credsHolder" style="display: inline-block;">
+            <h1 id="welcome" style="color: #5a5a5a;">Password Reset</h1>
+            <form id="loginForm">
+                <input type="password" name="curpass" placeholder="Current Password" id="passwd" required class="redhighlight"><br>
+                <input type="password" name="newpass" placeholder="New Password" id="npasswd" required class="redhighlight"><br>
+                <input type="password" name="repeatpass" placeholder="Retype Password" id="rpasswd" required class="redhighlight"><br>
+                <button type="submit" id="confirmBtn">Confirm</button>
+                <div id="loader" style="display: none;"></div>
+            </form>
+        </div>
+        </body>
+    <script type="text/javascript">
+        var nest = document.getElementById("credsHolder");
+        document.addEventListener("DOMContentLoaded", function()
+        {
+            nest.style.opacity = "100%";
+        });
+        var listener = function()
+        {
+            nest.classList.remove("incorrect");
+        };
+        var header = document.getElementById("welcome");
+        var form = document.getElementById("loginForm");
+        nest.addEventListener('animationend', listener);
+        nest.addEventListener('webkitAnimationEnd', listener);
+        var pass = document.getElementById("passwd");
+
+        var oldpass = "";
+
+        var npass = document.getElementById("npasswd");
+        var rpass = document.getElementById("rpasswd");
+        var spinner = document.getElementById("loader");
+        var confirmBtn = document.getElementById("confirmBtn");
+        confirmBtn.addEventListener('click', function(e)
+        {
+            e.preventDefault();
+            if (npass.value == "" || rpass.value == "" || npass.value != rpass.value)
+            {
+                npass.style = "border-style: solid; border-color: #E74C3C;";
+                rpass.style = "border-style: solid; border-color: #E74C3C;";
+                return;
+            }
+            else
+            {
+                npass.removeAttribute('style');
+                rpass.removeAttribute('style');
+            }
+            if (pass.value == "" || pass.value == oldpass)
+            {
+                pass.style = "border-style: solid; border-color: #E74C3C;";
+                return;
+            }
+            else
+            {
+                pass.removeAttribute('style');
+            }
+            pass.removeAttribute('style');
+            npass.removeAttribute('style');
+            rpass.removeAttribute('style');
+            confirmBtn.style.display = "none";
+            spinner.style.display = "inline-block";
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', '/changepass', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    var res = ajax.responseText;
+                    if (res == "incorrect!")
+                    {
+                        oldpass = pass.value;
+                        spinner.style.display = "none";
+                        confirmBtn.style.display = "inline-block";
+                        nest.classList.add("incorrect");
+                        pass.style = "border-style: solid; border-color: #E74C3C;";
+                    }
+                    else if (res == "No match!")
+                    {
+                        spinner.style.display = "none";
+                        confirmBtn.style.display = "inline-block";
+                        npass.style = "border-style: solid; border-color: #E74C3C;";
+                        rpass.style = "border-style: solid; border-color: #E74C3C;";
+                    }
+                    else
+                    {
+                        nest.removeEventListener("animationend", listener);
+                        nest.removeEventListener("webkitAnimationEnd", listener);
+                        listener = function() {
+                            nest.style.transform = "translate(-50%, 300%)";
+                            window.location.replace(ajax.responseURL);
+                        };
+                        nest.addEventListener('animationend', listener);
+                        nest.addEventListener('webkitAnimationEnd', listener);
+                        nest.classList.add("moveout");
+                    }
+                }
+            };
+            ajax.send(JSON.stringify(
+                {curpass:String(pass.value),
+                newpass:String(npass.value),
+                reppass:String(rpass.value)}));
+        });
+    </script>
+</html>

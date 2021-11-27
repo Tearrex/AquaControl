@@ -1,0 +1,274 @@
+<html>
+    <head>
+        <link rel="shortcut icon" href="/static/fish.png">
+        <title>Temperatures</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='stylesheet' href="/static/style.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+        <Style>
+            canvas {
+                max-width: 800px;
+                max-height: 400px;
+            }
+            .comfyBtn {
+                border: none;
+                color: white;
+                text-align: center;
+                padding: 0 8px 0 8px;
+                font-size: 30px;
+                outline: none;
+                margin: 0px 0 15px 0;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+                transition: background-color 0.3s linear;
+            }
+            .blues {
+                background-color: #3498DB;
+            }
+            .blues:hover {
+                background-color: #2874A6;
+            }
+            .reds {
+                background-color: #E74C3C;
+            }
+            .reds:hover {
+                background-color: #B03A2E;
+            }
+        </Style>
+    </head>
+    <body style='text-align: center;'>
+        <div id="navBar">
+            <ul>
+                <li><a href="#" style="background-color: #111;">Graphs</a></li>
+                <li><a href="/index">LEDs</a></li>
+                <li><a href="/stream">Stream</a></li>
+            </ul>
+        </div>
+        <div id="faded">
+            <!--<h1 class="rainbow">Aquarium Control</h1>-->
+            <p style="margin-top: 0; margin-bottom: 15px; color: #cbcbcb;" class="niceText">Temperature Analytics</p>
+            <div id="waternest" style="display: inline-block; margin: 15px 0;">
+                <p id="watertempA" class="niceText temps" style="text-align: center; display: none; margin: 0;">💧 Low: {{ wlow }} High: {{ whigh }}</p>
+                <p id="watertemp" class="niceText temps" style="text-align: center; margin: 0;">💧 Water 0 °F</p>
+            </div><br>
+                <button type="submit" class="comfyBtn blues" id="bluePurge">Purge Data</button>
+            <br>
+            <canvas id="waterChart" height="300" style="display: inline-block;"></canvas>
+            <br>
+            <div id="cpunest" style="display: inline-block; margin: 15px 0;">
+                <p id="cputempA" class="niceText temps" style="text-align: center; display: none; margin: 0;">🌡️ Low: {{ clow }} High: {{ chigh }}</p>
+                <p id="cputemp" class="niceText temps" style="text-align: center; margin: 0;">🌡️ CPU 0 °C</p>
+            </div><br>
+                <button type="submit" class="comfyBtn reds" id="redPurge">Purge Data</button>
+            <br>
+            <canvas id="cpuChart" height="300" style="display: inline-block; margin-bottom: 50px;"></canvas>
+        </div>
+        <script>
+            const body = document.getElementById("faded");
+            document.addEventListener("DOMContentLoaded", function()
+            {
+                body.id = "fadein";
+            });
+            var pages = document.getElementsByTagName('a');
+            for(var i = 0; i < pages.length; i++)
+            {
+                if(pages[i].pathname === window.location.pathname) continue;
+                pages[i].addEventListener('click', function(e)
+                {
+                    var page = e.currentTarget.href;
+                    var listener = function()
+                    {
+                        window.location = page;
+                        body.removeEventListener('transitionend', listener);
+                        body.removeEventListener('webkitTransitionEnd', listener);
+                    };
+                    body.addEventListener('transitionend', listener);
+                    body.addEventListener('webkitTransitionEnd', listener);
+                    e.preventDefault();
+                    body.id = "faded";
+                });
+            };
+            // water temp chart
+            var ctx = document.getElementById('waterChart').getContext('2d');
+            var waterChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ wdates | safe }},
+                    datasets: [
+                        {
+                            label: 'Fahrenheit',
+                            data: {{ wtemps | safe }},
+                            backgroundColor: "rgba(52, 152, 219, 0.5)",
+                            fill: true,
+                            borderColor: "rgb(229, 231, 233)",
+                            lineTension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            },
+                            ticks: {
+                                suggestedMin:60,
+                                suggestedMax:90
+                            }
+                        }]
+                    }
+                }
+            });
+            var ctx2 = document.getElementById('cpuChart').getContext('2d');
+            var cpuChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: {{ cdates | safe }},
+                    datasets: [
+                        {
+                            label: 'Celcius',
+                            data: {{ ctemps | safe }},
+                            backgroundColor: "rgba(231, 76, 60, 0.5)",
+                            fill: true,
+                            borderColor: "rgb(229, 231, 233)",
+                            lineTension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display: false,
+                                color: "white"
+                            },
+                            ticks: {
+                                suggestedMin:20,
+                                suggestedMax:60
+                            }
+                        }]
+                    }
+                }
+            });
+            function removeData(chart)
+            {
+                //chart.data.labels.pop();
+                chart.data.labels = [];
+                chart.data.datasets.forEach((dataset) => {
+                    //dataset.data.pop();
+                    dataset.data = [];
+                });
+                chart.update();
+            }
+            var purgers = document.getElementsByClassName("comfyBtn");
+            for(var i = 0; i < purgers.length; i++)
+            {
+                purgers[i].addEventListener('click', function(e)
+                {
+                    //console.log(e.currentTarget.className);
+                    if(e.currentTarget.className.includes('blues'))
+                    {
+                        var probe = "water";
+                        var chart = waterChart;
+                    }
+                    else
+                    {
+                        var probe = "cpu";
+                        var chart = cpuChart;
+                    }
+                    var ajax = new XMLHttpRequest();
+                    ajax.open('POST', '/cleartemp', true);
+                    ajax.setRequestHeader('Content-type', 'application/json');
+                    ajax.onreadystatechange = function() {
+                        if(this.readyState == 4 && this.status == 200)
+                        {
+                            if (ajax.responseText == "No access") return;
+                            console.log(ajax.responseText);
+                            removeData(chart);
+                        }
+                    };
+                    ajax.send(JSON.stringify({probe:String(probe)}));
+                });
+            };
+        </script>
+    </body>
+    <script type="text/javascript">
+        const wNest = document.getElementById("waternest");
+        const wTemp = document.getElementById("watertemp");
+        const wAn = document.getElementById("watertempA");
+        wNest.addEventListener('mouseover', function()
+        {
+            wTemp.style.display = "none";
+            wAn.style.display = "inline-block";
+        });
+        wNest.addEventListener('mouseout', function()
+        {
+            wAn.style.display = "none";
+            wTemp.style.display = "inline-block";
+        });
+        const cNest = document.getElementById("cpunest");
+        const cTemp = document.getElementById("cputemp");
+        const cAn = document.getElementById("cputempA");
+        cNest.addEventListener('mouseover', function()
+        {
+            cTemp.style.display = "none";
+            cAn.style.display = "inline-block";
+        });
+        cNest.addEventListener('mouseout', function()
+        {
+            cAn.style.display = "none";
+            cTemp.style.display = "inline-block";
+        });
+        var wtemp = document.querySelector("#watertemp");
+        var ctemp = document.querySelector("#cputemp");
+        function testFunc(){
+            if(!document.hasFocus()) return;
+            var ajax = new XMLHttpRequest();
+            ajax.open('GET', '/temps', true);
+            ajax.setRequestHeader('Content-type', 'application/json');
+            ajax.onreadystatechange = function()
+            {
+                if(this.readyState == 4 && this.status == 200)
+                {
+                    if (this.responseText == "No access") return;
+                    var data = JSON.parse(this.response);
+                    wtemp.textContent = "💧 Water " + data['wtemp'] + " °F"
+                    ctemp.textContent = "🌡️ CPU " + data['ctemp'] + " °C"
+                    console.log(data);
+                }
+            };
+            ajax.send();
+            /*
+            $.ajax({
+                url:'/temps',
+                type:'GET',
+                dataType:'json', 
+                success:function(res) 
+                { 
+                    document.querySelector("#watertemp").textContent = "💧 Water " + res['wtemp'] + " °F"
+                    document.querySelector("#cputemp").textContent = "🌡️ CPU " + res['ctemp'] + " °C"
+                    console.log(res);
+                } 
+            });*/
+        };
+        window.setInterval(testFunc, 5000);
+    </script>
+</html>

@@ -1,0 +1,8 @@
+.vscode/
+__pycache__/
+templates/old_main.html
+geckodriver.exe
+emailer.py
+*.log
+*.png
+*.db

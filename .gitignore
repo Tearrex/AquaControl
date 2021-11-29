@@ -1,7 +1,9 @@
 .vscode/
+_env/
 __pycache__/
 templates/old_main.html
 geckodriver.exe
+aqua_config.json
 emailer.py
 *.log
 *.png

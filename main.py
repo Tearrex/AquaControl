@@ -1,24 +1,22 @@
 from flask import Flask, Response, render_template, request, jsonify, redirect, g, session, url_for
 import datetime, time, platform, random, os, socket
-import threading, requests, cv2
+import threading, cv2
 from users import validate_password, hash_password
 from tracker import sql_query, get_all_temps
 
 app = Flask(__name__)
-app.secret_key = 'CH!NgaL4Tu!'
+app.secret_key = 'YourSecretKey'
 rasp = False
 picam = None
 
 # these IPs will bypass authentication for GET/POST requests
 # this is just for my use case, you don't have to touch it.
-IP_WHITELIST = ["192.168.0.9"]
+IP_WHITELIST = []#["192.168.0.9"]
 
 try:
     import board
     from neopixel import NeoPixel
-except Exception as e:
-    # workaround for my development build on Windows
-    print("Import error for raspberry pi modules ignored.")
+except Exception as e: pass
 else:
     # this is for the 1-wire protocol of the DS18B20 sensor
     os.system('modprobe w1-gpio')
@@ -240,16 +238,16 @@ def setLightTimer():
         else:
             newTime = time.strftime('%H:%M', _time)
             if msg['status'] == "on":
-                if leds.onTime == newTime: return ('No change')
-                elif leds.offTime == newTime: return ('Duplicate times')
+                if leds.settings["onTime"] == newTime: return ('No change')
+                elif leds.settings["offTime"] == newTime: return ('Duplicate times')
                 leds.set_timer("on", newTime)
-                status = f'On time set to {leds.onTime}'
+                status = f'On time set to {leds.settings["onTime"]}'
                 return (f'{status}')
             elif msg['status'] == 'off':
-                if leds.offTime == newTime: return ('No change')
-                elif leds.onTime == newTime: return ('Duplicate times')
+                if leds.settings["offTime"] == newTime: return ('No change')
+                elif leds.settings["onTime"] == newTime: return ('Duplicate times')
                 leds.set_timer("off", newTime)
-                status = f'Off time set to {leds.offTime}'
+                status = f'Off time set to {leds.settings["offTime"]}'
                 return (f'{status}')
 @app.route('/index', methods=['POST','GET'])
 def index():

@@ -1,9 +1,10 @@
 import random, os, time, sqlite3, datetime, platform, subprocess, glob, sys
 
 def sql_query(query:str, result:bool=False, commit:bool=False, param=None, db='temperatures.db'):
-    if platform.system() == "Linux":
-        conn = sqlite3.connect(f"/home/pi/git/projects/AquaControl/{db}")
-    else: conn = sqlite3.connect(db)
+    #if platform.system() == "Linux":
+        #conn = sqlite3.connect(f"/home/pi/git/projects/AquaControl/{db}")
+    #else: conn = sqlite3.connect(db)
+    conn = sqlite3.connect(db)
     cursor = conn.cursor()
     if not param: cursor.execute(query)
     else: cursor.execute(query, param)
@@ -13,8 +14,7 @@ def sql_query(query:str, result:bool=False, commit:bool=False, param=None, db='t
     conn.close()
     return results
 
-def fake_temp():
-    return random.randint(70,80)
+def fake_temp(): return random.randint(70,80)
 
 if platform.system() == "Linux":
     os.system('modprobe w1-gpio')

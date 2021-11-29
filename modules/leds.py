@@ -1,17 +1,19 @@
 import os, time, schedule, threading, json
-
 try:
     import board
     from neopixel import NeoPixel
-except Exception: print("Raspberry imports ignored")
+except Exception:
+    print("You are missing NeoPixel or not using a Raspberry Pi. Try creating a virtual environment.")
+    input()
+    exit()
 
-#LED_PIN = board.D18 # specify the data pin you connected to your strip
-NUM_PIXELS = 25 # amount of LED lights on your strip
+LED_PIN = board.D18 # specify the data pin you connected to your strip
+NUM_PIXELS = 25 # amount of LEDs on your strip
 MAX_BRIGHTNESS = 25 # maximum brightness in percentage
 
 PARENT_DIR = os.path.normpath(os.getcwd())
 SETTINGS_PATH = os.path.join(PARENT_DIR, "aqua_config.json")
-print(SETTINGS_PATH)
+#print(SETTINGS_PATH)
 class LEDs:
     # so far it can read the settings file 
     # but wont save changes that are applied, yet

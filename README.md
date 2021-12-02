@@ -1,6 +1,7 @@
 # AquaControl
  A web application for Raspberry Pi aquarium tech!
 
+Since this project controls my home devices, I provided a [video demo](https://youtu.be/Ijvt4syre6s) instead of a live website.
 ## What I wanted
 Entertain myself during lockdown by automating some hobbies. I decided upon adding some lights to my aquarium which ultimately had me creating my own LED controller with a webserver for remote access. I tinkered with PHP in the past so I had a general idea of what I was doing, though I fancied a modern web framework this time.
 ## What it can do

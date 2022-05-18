@@ -30,35 +30,46 @@ CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 username TEXT NOT NULL, password TEXT NOT NULL, salt TEXT DEFAULT '')
     """, False, True, None, 'users.db')
     while True:
-        test = input("[1] Validate User\n[2] Register User\n[3] Delete User\n[4] Exit\n")
+            test = input(
+                "[1] Validate User\n[2] Register User\n[3] Delete User\n[4] Exit\n")
         if test == "1":
             # check user
             _username = input("Enter username: ").lower()
-            if _username.strip() == "": continue
-            user = sql_query("SELECT * FROM users WHERE username = (?)", True, False, (_username,), 'users.db')
+                if _username.strip() == "":
+                    continue
+                user = sql_query(
+                    "SELECT * FROM users WHERE username = (?)", True, False, (_username,), 'users.db')
             if not user:
                 print("User does not exist!\n")
                 continue
             else:
                 _password = input(f"Enter password for {user[0][1]}: ")
-                if _password.strip() == "": continue
-                if validate_password(_password, user[0][2]): print("User validated!\n")
-                else: print("Password is incorrect!\n")
+                    if _password.strip() == "":
+                        continue
+                    if validate_password(_password, user[0][2]):
+                        print("User validated!\n")
+                    else:
+                        print("Password is incorrect!\n")
         elif test == "2":
             # make user
             _username = input("Create username: ").lower()
-            if _username.strip() == "": continue
-            user = sql_query("SELECT * FROM users WHERE username = (?)", True, False, (_username,), 'users.db')
+                if _username.strip() == "":
+                    continue
+                user = sql_query(
+                    "SELECT * FROM users WHERE username = (?)", True, False, (_username,), 'users.db')
             if user:
                 print("Username taken!\n")
                 continue
             _password = input(f"Create password for {_username}: ")
-            if _password.strip() == "": continue
+                if _password.strip() == "":
+                    continue
+                print("Hashing password...")
             password = hash_password(_password)
             salt = password[1]
             register_user(_username, password[0], salt)
         elif test == "3":
-            users = sql_query("SELECT * FROM users", True, False, None, 'users.db')
+                users = sql_query("SELECT * FROM users",
+                                  True, False, None, 'users.db')
             if not users:
                 print("No users created!\n")
                 continue
@@ -66,21 +77,30 @@ username TEXT NOT NULL, password TEXT NOT NULL, salt TEXT DEFAULT '')
             print("\nUsers:")
             print("\n".join(usernames))
             while True:
-                _user = input("Type name of user to remove (or * for all): ").lower()
-                if _user.strip() == "": break
+                    _user = input(
+                        "Type name of user to remove (or * for all): ").lower()
+                    if _user.strip() == "":
+                        break
                 elif _user in usernames:
-                    sql_query("DELETE FROM users WHERE username = (?)", False, True, (_user,), 'users.db')
+                        sql_query("DELETE FROM users WHERE username = (?)",
+                                  False, True, (_user,), 'users.db')
                     _os = platform.system()
-                    if _os == "Linux": os.system("clear")
-                    elif _os == "Windows": os.system("cls")
+                        if _os == "Linux":
+                            os.system("clear")
+                        elif _os == "Windows":
+                            os.system("cls")
                     print(f"User '{_user}' was deleted!")
                     break
                 elif _user == "*":
                     prompt = input("Delete all users? (Y/n) ")
                     if prompt == "Y":
-                        sql_query("DELETE FROM users", False, True, None, 'users.db')
+                            sql_query("DELETE FROM users", False,
+                                      True, None, 'users.db')
                         print("All users have been deleted!")
                         break
-                    elif prompt == "n": break
-                    else: continue
-        elif test == "4": break
+                        elif prompt == "n":
+                            break
+                        else:
+                            continue
+            elif test == "4":
+                break

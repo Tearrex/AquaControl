@@ -29,6 +29,8 @@ if __name__ == '__main__':
 CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 username TEXT NOT NULL, password TEXT NOT NULL, salt TEXT DEFAULT '')
     """, False, True, None, 'users.db')
+
+    def menu():
     while True:
             test = input(
                 "[1] Validate User\n[2] Register User\n[3] Delete User\n[4] Exit\n")
@@ -104,3 +106,7 @@ username TEXT NOT NULL, password TEXT NOT NULL, salt TEXT DEFAULT '')
                             continue
             elif test == "4":
                 break
+    try:
+        menu()
+    except KeyboardInterrupt:
+        exit()

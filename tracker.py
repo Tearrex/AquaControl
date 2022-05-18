@@ -16,13 +16,17 @@ def sql_query(query:str, result:bool=False, commit:bool=False, param=None, db='t
 
 def fake_temp(): return random.randint(70,80)
 
+
+base_dir = '/sys/bus/w1/devices/'
+hits = glob.glob(base_dir + '28*')
+device_folder = ""
+if len(hits) > 0:
+    device_folder = hits[0]
+device_file = device_folder + '/w1_slave'
 def prime():
     if platform.system() == "Linux":
         os.system('modprobe w1-gpio')
         os.system('modprobe w1-therm')
-        base_dir = '/sys/bus/w1/devices/'
-        device_folder = glob.glob(base_dir + '28*')[0]
-        device_file = device_folder + '/w1_slave'
 
 def read_raw():
     with open(device_file, 'r') as t: lines = t.readlines()

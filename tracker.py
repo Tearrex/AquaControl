@@ -16,12 +16,13 @@ def sql_query(query:str, result:bool=False, commit:bool=False, param=None, db='t
 
 def fake_temp(): return random.randint(70,80)
 
-if platform.system() == "Linux":
-    os.system('modprobe w1-gpio')
-    os.system('modprobe w1-therm')
-    base_dir = '/sys/bus/w1/devices/'
-    device_folder = glob.glob(base_dir + '28*')[0]
-    device_file = device_folder + '/w1_slave'
+def prime():
+    if platform.system() == "Linux":
+        os.system('modprobe w1-gpio')
+        os.system('modprobe w1-therm')
+        base_dir = '/sys/bus/w1/devices/'
+        device_folder = glob.glob(base_dir + '28*')[0]
+        device_file = device_folder + '/w1_slave'
 
 def read_raw():
     with open(device_file, 'r') as t: lines = t.readlines()
@@ -55,6 +56,7 @@ def get_all_temps():
 # Now it will record the water and CPU temperatures every 15 minutes!
 # Don't forget the & symbol as this script executes an infinite loop.
 if __name__ == '__main__':
+    prime() # prime the temperature probe to read its data
     if platform.system() == "Windows":
         table = ""
         while table == "":

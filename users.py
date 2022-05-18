@@ -21,6 +21,14 @@ def register_user(username, password, salt):
     print("User registered, try logging in with these credentials!\n")
 
 if __name__ == '__main__':
+    if not os.path.exists("users.db"):
+        with open("users.db", "w") as db:
+            db.write("")
+        print("Created empty user database file")
+    sql_query(f"""
+CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT NOT NULL, password TEXT NOT NULL, salt TEXT DEFAULT '')
+    """, False, True, None, 'users.db')
     while True:
         test = input("[1] Validate User\n[2] Register User\n[3] Delete User\n[4] Exit\n")
         if test == "1":

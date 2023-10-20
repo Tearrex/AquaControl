@@ -172,7 +172,8 @@ def change_col():
 def temps():
     """Returns a JSON object with the CPU temperature in celcius
     and water temperature in fahrenheit"""
-    if not g.user and request.remote_addr != local_ip: return ('No access')
+    if not request.remote_addr in IP_WHITELIST:
+        if not g.user and request.remote_addr != local_ip: return ('No access')
     if request.method == 'GET':
         if platform.system() == "Linux":
             temps = get_all_temps()

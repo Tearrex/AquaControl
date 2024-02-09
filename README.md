@@ -1,7 +1,7 @@
 # AquaControl
  A web application for Raspberry Pi controlling electrical circuits!
- 
-![aquacontrol](https://github.com/Tearrex/AquaControl/assets/26557969/a1fb35e7-70b0-40ec-84c8-9b4a00aabbe0)
+
+![aquacontrol](https://github.com/Tearrex/AquaControl/assets/26557969/56637c5a-ac11-4b4a-805a-7f82524daffc)
 
 Since this project controls my home devices, I provided a [video demo](https://youtu.be/Ijvt4syre6s) instead of a live website.
 ## What I wanted
